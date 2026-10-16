@@ -11,6 +11,9 @@ import duckdb
 # Useful links:
 # - Spec definition: https://www.openarchives.org/OAI/openarchivesprotocol.html
 
+# Update to change how many request per repository and set are made
+MAX_REQUESTS = 2
+
 
 class OpenAireSet(NamedTuple):
     short_name: str
@@ -240,7 +243,6 @@ OPENAIRE_SETS = [
         extract_key="Product",
     ),
 ]
-MAX_REQUESTS = 2
 
 
 def main():
@@ -248,20 +250,10 @@ def main():
     Path("data/").mkdir(exist_ok=True)
     con = duckdb.connect("ducklake:data/broccoli.ducklake")
 
-    # for repo in CRIS_REPOSITORIES:
-    # target_table, temp_dir, fetch_success = CRIS_REPOSITORIES[0].harvest_set(
-    #     OPENAIRE_SETS[0], max_requests=1
-    # )
-
-    # if fetch_success:
-    #     ingest_data(con, temp_dir, target_table)
-    # else:
-    #     print("Error on fetch")
-
     for cris_repository in CRIS_REPOSITORIES:
         for openaire_set in OPENAIRE_SETS:
             target_table, temp_dir, fetch_success = cris_repository.harvest_set(
-                openaire_set, max_requests=5
+                openaire_set, max_requests=MAX_REQUESTS
             )
             if fetch_success:
                 ingest_data(con, temp_dir, target_table)
